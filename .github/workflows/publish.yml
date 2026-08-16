@@ -12,7 +12,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -49,23 +49,35 @@ jobs:
             exit 1
           fi
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           version: 10
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           registry-url: "https://registry.npmjs.org"
-
-      - name: Verify package contents
-        working-directory: plugins/${{ steps.resolve.outputs.name }}
-        run: npm pack --dry-run
 
       - name: Configure npm auth
         run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "${HOME}/.npmrc"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Check npm auth and package name
+        shell: bash
+        run: |
+          NAME="${{ steps.resolve.outputs.name }}"
+          echo "authenticated as: $(npm whoami --registry=https://registry.npmjs.org)"
+          EXISTING="$(npm view "${NAME}" version 2>/dev/null || true)"
+          if [ -n "${EXISTING}" ]; then
+            echo "::warning::'${NAME}' already exists on npm (latest ${EXISTING}) — publishing requires this account to own it and the version to be new"
+          else
+            echo "package name '${NAME}' is available"
+          fi
+
+      - name: Verify package contents
+        working-directory: plugins/${{ steps.resolve.outputs.name }}
+        run: npm pack --dry-run
 
       - name: Publish to npm
         working-directory: plugins/${{ steps.resolve.outputs.name }}
