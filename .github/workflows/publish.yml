@@ -3,7 +3,7 @@ name: publish
 on:
   push:
     tags:
-      - "v*"
+      - "*-v*"
 
 permissions:
   contents: write # GitHub Release creation
@@ -16,6 +16,39 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Resolve plugin from tag
+        id: resolve
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          NAME="${TAG%-v*}"
+          VERSION="${TAG##*-v}"
+          if [ -z "$NAME" ] || [ -z "$VERSION" ]; then
+            echo "::error::tag '${TAG}' must match '<package-name>-v<version>'"
+            exit 1
+          fi
+          echo "name=${NAME}" >> "${GITHUB_OUTPUT}"
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+
+      - name: Verify plugin directory and version
+        shell: bash
+        run: |
+          DIR="plugins/${{ steps.resolve.outputs.name }}"
+          if [ ! -f "${DIR}/package.json" ]; then
+            echo "::error::plugin directory '${DIR}' not found"
+            exit 1
+          fi
+          PKG_NAME="$(node -p "require('./${DIR}/package.json').name")"
+          PKG_VER="$(node -p "require('./${DIR}/package.json').version")"
+          if [ "${PKG_NAME}" != "${{ steps.resolve.outputs.name }}" ]; then
+            echo "::error::tag plugin '${{ steps.resolve.outputs.name }}' does not match package name '${PKG_NAME}'"
+            exit 1
+          fi
+          if [ "${PKG_VER}" != "${{ steps.resolve.outputs.version }}" ]; then
+            echo "::error::tag version '${{ steps.resolve.outputs.version }}' does not match package version '${PKG_VER}'"
+            exit 1
+          fi
+
       - uses: pnpm/action-setup@v4
         with:
           version: 10
@@ -25,17 +58,8 @@ jobs:
           node-version: 22
           registry-url: "https://registry.npmjs.org"
 
-      - name: Verify tag matches package version
-        shell: bash
-        run: |
-          TAG="${GITHUB_REF_NAME#v}"
-          PKG="$(node -p "require('./package.json').version")"
-          if [ "$TAG" != "$PKG" ]; then
-            echo "::error::tag '${GITHUB_REF_NAME}' does not match package version '${PKG}'"
-            exit 1
-          fi
-
       - name: Verify package contents
+        working-directory: plugins/${{ steps.resolve.outputs.name }}
         run: npm pack --dry-run
 
       - name: Configure npm auth
@@ -44,6 +68,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to npm
+        working-directory: plugins/${{ steps.resolve.outputs.name }}
         run: pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

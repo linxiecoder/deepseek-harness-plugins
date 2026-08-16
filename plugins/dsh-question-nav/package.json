@@ -32,7 +32,8 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/linxiecoder/deepseek-harness-plugins.git"
+    "url": "git+https://github.com/linxiecoder/deepseek-harness-plugins.git",
+    "directory": "plugins/dsh-question-nav"
   },
   "homepage": "https://github.com/linxiecoder/deepseek-harness-plugins",
   "bugs": {
