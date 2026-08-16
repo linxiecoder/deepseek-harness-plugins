@@ -30,6 +30,14 @@
     "README.md"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linxiecoder/deepseek-harness-plugins.git"
+  },
+  "homepage": "https://github.com/linxiecoder/deepseek-harness-plugins",
+  "bugs": {
+    "url": "https://github.com/linxiecoder/deepseek-harness-plugins/issues"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"

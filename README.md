@@ -6,6 +6,14 @@ full-text preview and click-to-jump (smooth scroll) to the matching message.
 
 ## Install
 
+From npm:
+
+```sh
+dsh plugin --profile web add dsh-question-nav
+```
+
+From a local checkout:
+
 ```sh
 dsh plugin --profile web add file:/path/to/question-nav-plugin
 ```
