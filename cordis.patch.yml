@@ -1,0 +1,6 @@
+# dsh-question-nav bundle patch: insert this package's own browser roster row.
+# The profile layer stack (dsh-base -> dsh-web-app -> ... -> this bundle) is
+# applied in dsh.profile.bundles order; the row id must stay unique.
+- insert:
+    - id: question-nav
+      name: dsh-question-nav
