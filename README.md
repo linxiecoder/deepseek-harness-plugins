@@ -1,4 +1,4 @@
-﻿# deepseek-harness-plugins
+# deepseek-harness-plugins
 
 A collection of third-party plugins for
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness), each
@@ -13,6 +13,8 @@ dsh plugin --profile <name> add <package>
 | Plugin | npm | Install |
 | --- | --- | --- |
 | [dsh-question-nav](./plugins/dsh-question-nav) | `dsh-question-nav` | `dsh plugin --profile web add dsh-question-nav` |
+
+| [dsh-bridge](https://github.com/wenbin-wb/dsh-bridge) | `@wenbin_wb/dsh-bridge` | `dsh plugin --profile web add @wenbin_wb/dsh-bridge` |
 
 ## Repository layout
 
